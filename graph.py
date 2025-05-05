@@ -31,9 +31,9 @@ print(f"Filtered {len(food_only)} food production entries (Element Code = 5142)"
 total_food_by_country = food_only.groupby('Area')['Y2013'].sum().reset_index()
 print(f"Aggregated food production data for {len(total_food_by_country)} countries")
 
-# # Remove India from the dataset as it's an outlier
-# total_food_by_country = total_food_by_country[total_food_by_country['Area'] != 'India']
-# print(f"Removed India from dataset. Remaining countries: {len(total_food_by_country)}")
+# Remove India from the dataset as it's an outlier
+total_food_by_country = total_food_by_country[total_food_by_country['Area'] != 'India']
+print(f"Removed India from dataset. Remaining countries: {len(total_food_by_country)}")
 
 # Check if necessary columns exist in happiness_index
 if 'Country or region' not in happiness_index.columns or 'Score' not in happiness_index.columns:
@@ -56,37 +56,24 @@ plt.switch_backend('Agg')
 
 # Create scatter plot
 plt.figure(figsize=(12, 8))
-scatter = plt.scatter(merged_data['Y2013'], merged_data['Score'], 
-                     alpha=0.7, c='blue', edgecolors='black')
+scatter = plt.scatter(
+    merged_data['Y2013'], merged_data['Score'],
+    alpha=0.7, c='blue', edgecolors='black'
+)
 
-# Add regression line
+# Regression line
 x = np.array(merged_data['Y2013'])
-plt.plot(x, intercept + slope*x, 'r', label=f'Regression line')
+regression_line = intercept + slope * x
+plt.plot(x, regression_line, 'r', label=f'Regression line (corr = {correlation:.2f})')
 
-# # Set x-axis limit to be approximately 1/3 of the maximum value
-# max_x_value = merged_data['Y2013'].max()
-# plt.xlim(0, max_x_value * 1.1)  # Add a little padding (10%)
-
-# Add labels and title
+# Labels and title
 plt.xlabel('Total Human Food Production in 2013 (Measured in 1000 tons)', fontsize=14)
-plt.ylabel('Happiness Index (0-10)', fontsize=14)
+plt.ylabel('Happiness Index (0–10)', fontsize=14)
 plt.title('Correlation between Human Food Production and Happiness Index by Country', fontsize=16)
 
-# Add correlation information
-plt.annotate(f'Correlation: {correlation:.2f}\nR²: {r_value**2:.2f}', 
-             xy=(0.05, 0.95), xycoords='axes fraction', 
-             fontsize=12, bbox=dict(boxstyle="round,pad=0.5", fc="white", alpha=0.8))
-
-# Add country names as annotations (for clarity, only add for some points)
-n_countries = len(merged_data)
-
-for i in range(0, n_countries):
-    plt.annotate(merged_data['Area'].iloc[i], 
-                (merged_data['Y2013'].iloc[i], merged_data['Score'].iloc[i]),
-                fontsize=8, xytext=(5, 5), textcoords='offset points')
-
+# Grid and legend
 plt.grid(True, alpha=0.3)
-plt.legend()
+plt.legend(loc='upper left')
 plt.tight_layout()
 
 # Save the figure
@@ -99,15 +86,3 @@ try:
     plt.show()
 except Exception as e:
     print(f"Note: Plot couldn't be displayed interactively but was saved to file. Error: {e}")
-
-# Print statistical summary
-print(f"\nStatistical Summary:")
-print(f"Correlation coefficient: {correlation:.4f}")
-print(f"R-squared: {r_value**2:.4f}")
-print(f"p-value: {p_value:.4f}")
-print(f"Slope: {slope:.4f}")
-print(f"Intercept: {intercept:.4f}")
-
-# Save the merged data to CSV for further analysis if needed
-merged_data.to_csv('food_production_happiness_data_no_india.csv', index=False)
-print("Merged data saved to 'food_production_happiness_data_no_india.csv'")
