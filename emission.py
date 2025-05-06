@@ -7,6 +7,10 @@ from scipy import stats
 emissions_df = pd.read_csv('co2_emissions_kt_by_country.csv')
 fao_df = pd.read_csv('FAO.csv', encoding='latin1')
 
+# Filter out India from both datasets
+emissions_df = emissions_df[emissions_df['country_name'] != 'India']
+fao_df = fao_df[fao_df['Area'] != 'India']
+
 # Filter emissions data for the year 2013
 emissions_2013 = emissions_df[emissions_df['year'] == 2013]
 emissions_by_country = emissions_2013[['country_name', 'value']].copy()
@@ -40,7 +44,7 @@ scatter = ax.scatter(
 )
 
 # Regression line
-ax.plot(x, regression_line, 'r', label=f'Regression line (R² = {r_value**2:.2f})')
+ax.plot(x, regression_line, 'r', label=f'Regression line (corr = {r_value:.2f})')
 
 # Labels and formatting
 ax.set_title('Carbon Emissions vs Food Production by Country (2013)', fontsize=16)
@@ -48,17 +52,17 @@ ax.set_xlabel('Food Production (units)', fontsize=12)
 ax.set_ylabel('CO2 Emissions (kilotons)', fontsize=12)
 ax.grid(True, linestyle='--', alpha=0.7)
 ax.ticklabel_format(style='plain', axis='both')
-ax.legend()
+ax.legend(loc='upper left')
 
 # Adjust layout
 fig.tight_layout()
 
 # Save and show
-fig.savefig('emissions_vs_food_production_2013.png', dpi=300)
+fig.savefig('emissions_vs_food_production_2013_no_india.png', dpi=300)
 plt.show()
 
 # Print summary
-print(f"Total countries in the analysis: {len(merged_data)}")
+print(f"Total countries in the analysis (excluding India): {len(merged_data)}")
 print(f"Correlation coefficient (r): {r_value:.2f}")
 print(f"R-squared: {r_value**2:.2f}")
 print("Top 5 countries by CO2 emissions:")
